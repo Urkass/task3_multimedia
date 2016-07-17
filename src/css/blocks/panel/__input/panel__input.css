@@ -1,0 +1,19 @@
+.panel__input {
+    display: block;
+    margin: 10px;
+    width: 100%;
+    font-family: sans-serif;
+    font-size: 18px;
+    appearance: none;
+    box-shadow: none;
+    border-radius: none;
+    padding: 10px;
+    border: solid 1px #dcdcdc;
+    border-bottom: solid 2px #c9c9c9;
+    transition: border 0.3s;
+    &:focus {
+        outline: none;
+        border-bottom: solid 2px #969696;
+    }
+
+}
