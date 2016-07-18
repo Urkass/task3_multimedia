@@ -9,7 +9,9 @@
   "description": "",
   "main": "gulpfile.babel.js",
   "dependencies": {
-    "normalize.css": "^4.2.0"
+    "moment": "^2.14.1",
+    "normalize.css": "^4.2.0",
+    "subtitles-parser": "0.0.2"
   },
   "devDependencies": {
     "babel-core": "^6.10.4",
