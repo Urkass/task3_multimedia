@@ -58,29 +58,36 @@ export default class Player {
                 //     this.subtitles.index++;
                 // }
                 //
-
+                // console.log(this.subtitles.data[this.subtitles.index].endTime);
                 if (this.video.videoElement.currentTime >= this.subtitles.data[this.subtitles.index].endTime) {
-                    this.subtitles.flag = false;
-                    drawSubtitlesPicture();
-                    this.video.pause();
-                    this.subtitles.index++;
-                    timerForSubtitles.call(this, 3000);
-                    console.log(this.video.videoElement.currentTime);
-                } else if (this.subtitles.flag) {
-                    this.video.play();
+                    if (!this.subtitles.flag) {
+                        this.video.pause();
+                        timerForSubtitles.call(this, 3000);
+                        this.subtitles.flag = true;
+                    }
+                    drawSubtitlesPicture(this.subtitles.data[this.subtitles.index].text);
+                    // console.log(this.video.videoElement.currentTime);
                 }
 
             }
 
             function timerForSubtitles(delay) {
-                setInterval(() => {
-                    this.subtitles.flag = true;
-                }, delay);
+                setTimeout(() => {
+                    console.log('CHANGE');
+                    this.video.play();
+                    this.subtitles.flag = false;
+                    this.subtitles.index++;
+                }, 3000);
             }
 
-            function drawSubtitlesPicture() {
-                context.fillStyle = '#ffffaa';
+            function drawSubtitlesPicture(text) {
+                context.fillStyle = '#000000';
                 context.fillRect(0, 0, theCanvas.width, theCanvas.height);
+                context.fillStyle = 'white';
+                context.font = '50px Oranienbaum';
+                context.textBaseline = 'middle';
+                context.textAlign = "center";
+                context.fillText(text, theCanvas.width / 2, theCanvas.height / 2);
             }
 
             function addGrayScale() {
