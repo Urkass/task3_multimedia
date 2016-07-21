@@ -14,6 +14,7 @@ export default class Player {
         this.song = new Song(links.audio);
         this.subtitles = new Subtitles(links.subtitles);
         this.previousTime = 0;
+        this.pauseFlag = true;
 
         this.video.videoElement.addEventListener('canplaythrough', () => {
             this.pagePlayer.classList.remove('page_hidden');
@@ -40,9 +41,7 @@ export default class Player {
 
             prepareWebGL.call(this);
 
-            // initScratches();
             this.play();
-
 
             drawScreen.call(this);
 
@@ -67,15 +66,19 @@ export default class Player {
                     'uniform float u_time;' +
                     'uniform vec2 u_resolution;' +
                     'vec2 uv;' +
+
                     'vec3 grayscale (vec3 color) {' +
                     '   return vec3(0.2126*color.r + 0.7152*color.g + 0.0722*color.b);' +
                     '}' +
+
                     'float rand(vec2 co){' +
                     '   return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);' +
                     '}' +
+
                     'float rand(float c){' +
                     '   return rand(vec2(c,1.0));' +
                     '}' +
+
                     'float randomLine(float seed){' +
                     '   float b = 0.01 * rand(seed);' +
                     '   float a = rand(seed+1.0);' +
@@ -88,6 +91,7 @@ export default class Player {
                     '   l = 2.0 - pow( abs(a * uv.x + b * uv.y + c), 1.0/8.0 );' +
                     '   return mix(0.5, 1.0, l);' +
                     '}' +
+
                     'float randomBlotch(float seed){' +
                     '	  float x = rand(seed);' +
                     '	  float y = rand(seed+1.0);' +
@@ -102,6 +106,7 @@ export default class Player {
                     '		v = pow(dot(p,p) - ss, 1.0/16.0);' +
                     '   return mix(0.3 + 0.2 * (1.0 - (s / 0.02)), 1.0, v);' +
                     '}' +
+
                     'void main() {' +
                     '   uv = v_texcoord.xy;' +
                     '   float t = float(int(u_time * 20.0));' +
@@ -113,9 +118,9 @@ export default class Player {
                     // Create a time-varyting vignetting effect
                     '   float vI = 16.0 * (uv.x * (1.0-uv.x) * uv.y * (1.0-uv.y));' +
                     'vI *= mix( 0.7, 1.0, rand(t + 0.5));' +
-                    // // Add additive flicker
+                    // Add additive flicker
                     'vI += 1.0 + 0.4 * rand(t+8.);' +
-                    // // Add a fixed vignetting (independent of the flicker)
+                    // Add a fixed vignetting (independent of the flicker)
                     'vI *= pow(16.0 * uv.x * (1.0-uv.x) * uv.y * (1.0-uv.y), 0.4);' +
 
                     // Случайные линии
@@ -130,12 +135,10 @@ export default class Player {
                     'if ( 7 < l ) vI *= randomLine( t+6.0+17.* float(7));' +
 
                     // Случайные пятна
-
-
                     'image = image * vI;' +
                     'gl_FragColor = vec4(image, 1.0);' +
 
-                    // Черно-белый эффект
+                    // Черно-белый эффект (первоначальный метод)
                     // '   gl_FragColor = vec4(grayscale(texture2D(u_texture, v_texcoord).rgb), 1.0);' +
                     // Зернистость
                     '   gl_FragColor.xyz *= (1.0+(rand(uv+t*.01)-.2)*.15);	' +
@@ -193,8 +196,9 @@ export default class Player {
             }
 
             function drawScreen(t) {
-
-
+                if (this.video.videoElement.ended) {
+                    return;
+                }
                 context.drawImage(this.video.videoElement, 0, 0, theCanvas.width, theCanvas.height);
                 checkForSubtitles.call(this);
                 if (t === undefined) {
@@ -219,6 +223,9 @@ export default class Player {
             }
 
             function checkForSubtitles() {
+                if (this.subtitles.index === this.subtitles.data.length) {
+                    return;
+                }
                 if (this.video.videoElement.currentTime >= this.subtitles.data[this.subtitles.index].endTime) {
                     if (!this.subtitles.flag) {
                         this.video.pause();
@@ -233,7 +240,7 @@ export default class Player {
             function timerForSubtitles(delay) {
                 setTimeout(() => {
                     this.subtitles.flag = false;
-                    if (this.video.videoElement.paused) {
+                    if (this.pauseFlag) {
                         return false;
                     }
                     this.video.play();
@@ -242,24 +249,34 @@ export default class Player {
             }
 
             function drawSubtitlesPicture(text) {
+                const fontsize = theCanvas.width / 100 * 3;
                 context.fillStyle = '#000000';
                 context.fillRect(0, 0, theCanvas.width, theCanvas.height);
                 context.fillStyle = '#D8D8D8';
-                context.font = `${theCanvas.width/100*3}px Oranienbaum`;
+                context.font = `${fontsize}px Oranienbaum`;
                 context.textBaseline = 'middle';
                 context.textAlign = 'center';
-                context.fillText(text, theCanvas.width / 2, theCanvas.height / 2);
+                createSubtitlesText(text, fontsize);
+            }
+
+            function createSubtitlesText(text, fontsize) {
+                let lines = text.split('\n');
+                lines.forEach((elem, i) => {
+                    context.fillText(elem, theCanvas.width / 2, (theCanvas.height / 2) + i * fontsize);
+                });
             }
         }
     }
 
     play() {
+        this.pauseFlag = false;
         this.playButton.classList.add('player__button_hidden');
         this.pauseButton.classList.remove('player__button_hidden');
         this.video.play();
         this.song.play();
     }
     pause() {
+        this.pauseFlag = true;
         this.pauseButton.classList.add('player__button_hidden');
         this.playButton.classList.remove('player__button_hidden');
         this.video.pause();
