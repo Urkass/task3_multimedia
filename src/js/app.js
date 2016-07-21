@@ -2,7 +2,9 @@ import Player from './player';
 
 export default class App {
     constructor() {
-        const crossorigin = 'http://cors.io/?u=';
+        // если ипсользовать ссылки со сторонних сайтов, то пригодится cors-сервер
+        // const crossorigin = 'http://cors.io/?u=';
+        const crossorigin = '';
         this.form = document.querySelector('.panel__form');
         this.pages = {
             'pageForm': document.querySelector('.page_content_form'),

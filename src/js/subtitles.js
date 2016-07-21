@@ -4,17 +4,19 @@ import parser from 'subtitles-parser';
 export default class Subtitles {
     constructor(link) {
         this.link = link;
-        this.data = getFile();
-        this.parseData();
+        this.data = null;
+        getFile.call(this);
         this.index = 0; // индекс текущих субтитров
         this.flag = false; // в видео еще не было субтитров
 
         function getFile() {
             let xhr = new XMLHttpRequest();
-            xhr.open('GET', link, false);
+            xhr.open('GET', link, true);
             xhr.send();
-            if (xhr.status === 200) {
-                return parser.fromSrt(xhr.response);
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState != 4) return;
+                this.data = parser.fromSrt(xhr.responseText);
+                this.parseData();
             }
         }
     }
