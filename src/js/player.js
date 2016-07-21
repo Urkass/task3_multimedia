@@ -4,7 +4,6 @@ import Subtitles from './subtitles';
 
 export default class Player {
     constructor(links, pages) {
-
         this.pagePlayer = pages.pagePlayer;
         this.pagePreloader = pages.pagePreloader;
         this.player = this.pagePlayer.querySelector('.player');
@@ -35,19 +34,15 @@ export default class Player {
             let webglContext = webglCanvas.getContext('webgl') || webglCanvas.getContext('experimental-webgl');
             webglCanvas.width = theCanvas.width = videoWidth;
             webglCanvas.height = theCanvas.height = videoHeight;
-
             let GL_TIME = 0;
             let GL_TIME_UNIFORM = null;
 
             prepareWebGL.call(this);
-
             this.play();
-
             drawScreen.call(this);
 
             function prepareWebGL(canvas, gl, sourceCanvas) {
                 const program = webglContext.createProgram();
-
                 let vertexCode = 'attribute vec2 coordinates;' +
                     'attribute vec2 texture_coordinates;' +
                     'varying vec2 v_texcoord;' +
@@ -55,11 +50,9 @@ export default class Player {
                     '  gl_Position = vec4(coordinates, 0.0, 1.0);' +
                     '  v_texcoord = texture_coordinates;' +
                     '}';
-
                 let vertexShader = webglContext.createShader(webglContext.VERTEX_SHADER);
                 webglContext.shaderSource(vertexShader, vertexCode);
                 webglContext.compileShader(vertexShader);
-
                 let fragmentCode = 'precision mediump float;' +
                     'varying vec2 v_texcoord;' +
                     'uniform sampler2D u_texture;' +
@@ -122,7 +115,6 @@ export default class Player {
                     'vI += 1.0 + 0.4 * rand(t+8.);' +
                     // Add a fixed vignetting (independent of the flicker)
                     'vI *= pow(16.0 * uv.x * (1.0-uv.x) * uv.y * (1.0-uv.y), 0.4);' +
-
                     // Случайные линии
                     'int l = int(8.0 * rand(t+7.0));' +
                     'if ( 0 < l ) vI *= randomLine( t+6.0+17.* float(0));' +
@@ -133,11 +125,9 @@ export default class Player {
                     'if ( 5 < l ) vI *= randomLine( t+6.0+17.* float(5));' +
                     'if ( 6 < l ) vI *= randomLine( t+6.0+17.* float(6));' +
                     'if ( 7 < l ) vI *= randomLine( t+6.0+17.* float(7));' +
-
                     // Случайные пятна
                     'image = image * vI;' +
                     'gl_FragColor = vec4(image, 1.0);' +
-
                     // Черно-белый эффект (первоначальный метод)
                     // '   gl_FragColor = vec4(grayscale(texture2D(u_texture, v_texcoord).rgb), 1.0);' +
                     // Зернистость
@@ -159,7 +149,6 @@ export default class Player {
                 GL_TIME_UNIFORM = webglContext.getUniformLocation(program, 'u_time');
                 let resolutionLocation = webglContext.getUniformLocation(program, 'u_resolution');
                 webglContext.uniform2f(resolutionLocation, webglCanvas.width, webglCanvas.height);
-
 
                 let buffer = webglContext.createBuffer();
                 let vertices = [-1, -1,
@@ -185,14 +174,12 @@ export default class Player {
                 webglContext.bufferData(webglContext.ARRAY_BUFFER, new Float32Array(textureCoordinates), webglContext.STATIC_DRAW);
                 webglContext.enableVertexAttribArray(texcoordLocation);
                 webglContext.vertexAttribPointer(texcoordLocation, 2, webglContext.FLOAT, false, 0, 0);
-
                 let texture = webglContext.createTexture();
                 webglContext.bindTexture(webglContext.TEXTURE_2D, texture);
                 webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_WRAP_S, webglContext.CLAMP_TO_EDGE);
                 webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_WRAP_T, webglContext.CLAMP_TO_EDGE);
                 webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_MIN_FILTER, webglContext.NEAREST);
                 webglContext.texParameteri(webglContext.TEXTURE_2D, webglContext.TEXTURE_MAG_FILTER, webglContext.NEAREST);
-
             }
 
             function drawScreen(t) {
@@ -213,9 +200,7 @@ export default class Player {
             function postprocessWebGL(delta) {
                 GL_TIME += delta;
                 webglContext.uniform1f(GL_TIME_UNIFORM, GL_TIME / 1000);
-
                 webglContext.texImage2D(webglContext.TEXTURE_2D, 0, webglContext.RGBA, webglContext.RGBA, webglContext.UNSIGNED_BYTE, theCanvas);
-
                 webglContext.viewport(0, 0, webglCanvas.width, webglCanvas.height);
                 webglContext.enable(webglContext.DEPTH_TEST);
                 webglContext.clear(webglContext.COLOR_BUFFER_BIT);
