@@ -47,9 +47,9 @@ export default class Player {
             drawScreen.call(this);
 
             function prepareWebGL(canvas, gl, sourceCanvas) {
-                var program = webglContext.createProgram();
+                const program = webglContext.createProgram();
 
-                var vertexCode = 'attribute vec2 coordinates;' +
+                let vertexCode = 'attribute vec2 coordinates;' +
                     'attribute vec2 texture_coordinates;' +
                     'varying vec2 v_texcoord;' +
                     'void main() {' +
@@ -57,11 +57,11 @@ export default class Player {
                     '  v_texcoord = texture_coordinates;' +
                     '}';
 
-                var vertexShader = webglContext.createShader(webglContext.VERTEX_SHADER);
+                let vertexShader = webglContext.createShader(webglContext.VERTEX_SHADER);
                 webglContext.shaderSource(vertexShader, vertexCode);
                 webglContext.compileShader(vertexShader);
 
-                var fragmentCode = 'precision mediump float;' +
+                let fragmentCode = 'precision mediump float;' +
                     'varying vec2 v_texcoord;' +
                     'uniform sampler2D u_texture;' +
                     'uniform float u_time;' +
@@ -108,7 +108,6 @@ export default class Player {
                     // Сохраняем кадр
                     '   vec3 image = texture2D(u_texture, uv).rgb;' +
                     // Добавляем ч/б
-                    // 'image = grayscale(image);'+
                     '   float luma = dot( vec3(0.2126, 0.7152, 0.0722), image );' +
                     '   image = luma * vec3(0.7, 0.7, 0.7);' +
                     // Create a time-varyting vignetting effect
@@ -142,7 +141,7 @@ export default class Player {
                     '   gl_FragColor.xyz *= (1.0+(rand(uv+t*.01)-.2)*.15);	' +
                     '}';
 
-                var fragmentShader = webglContext.createShader(webglContext.FRAGMENT_SHADER);
+                let fragmentShader = webglContext.createShader(webglContext.FRAGMENT_SHADER);
                 webglContext.shaderSource(fragmentShader, fragmentCode);
                 webglContext.compileShader(fragmentShader);
 
@@ -152,15 +151,15 @@ export default class Player {
                 webglContext.linkProgram(program);
                 webglContext.useProgram(program);
 
-                var positionLocation = webglContext.getAttribLocation(program, 'coordinates');
-                var texcoordLocation = webglContext.getAttribLocation(program, 'texture_coordinates');
+                let positionLocation = webglContext.getAttribLocation(program, 'coordinates');
+                let texcoordLocation = webglContext.getAttribLocation(program, 'texture_coordinates');
                 GL_TIME_UNIFORM = webglContext.getUniformLocation(program, 'u_time');
-                var resolutionLocation = webglContext.getUniformLocation(program, "u_resolution");
+                let resolutionLocation = webglContext.getUniformLocation(program, 'u_resolution');
                 webglContext.uniform2f(resolutionLocation, webglCanvas.width, webglCanvas.height);
 
 
-                var buffer = webglContext.createBuffer();
-                var vertices = [-1, -1,
+                let buffer = webglContext.createBuffer();
+                let vertices = [-1, -1,
                     1, -1, -1, 1, -1, 1,
                     1, -1,
                     1, 1
@@ -171,7 +170,7 @@ export default class Player {
                 webglContext.vertexAttribPointer(positionLocation, 2, webglContext.FLOAT, false, 0, 0);
 
                 buffer = webglContext.createBuffer();
-                var textureCoordinates = [
+                let textureCoordinates = [
                     0, 1,
                     1, 1,
                     0, 0,
@@ -198,12 +197,12 @@ export default class Player {
 
                 context.drawImage(this.video.videoElement, 0, 0, theCanvas.width, theCanvas.height);
                 checkForSubtitles.call(this);
-                // if (!(this.video.videoElement.paused || this.video.videoElement.ended)) {
-                    if (t === undefined) t = 0;
-                    let delta = t - this.previousTime;
-                    this.previousTime = t;
-                    postprocessWebGL(delta);
-                // }
+                if (t === undefined) {
+                    t = 0;
+                }
+                let delta = t - this.previousTime;
+                this.previousTime = t;
+                postprocessWebGL(delta);
                 requestAnimationFrame(drawScreen.bind(this));
             }
 
@@ -219,10 +218,7 @@ export default class Player {
                 webglContext.drawArrays(webglContext.TRIANGLES, 0, 6);
             }
 
-
-
             function checkForSubtitles() {
-
                 if (this.video.videoElement.currentTime >= this.subtitles.data[this.subtitles.index].endTime) {
                     if (!this.subtitles.flag) {
                         this.video.pause();
@@ -230,15 +226,17 @@ export default class Player {
                         this.subtitles.flag = true;
                     }
                     drawSubtitlesPicture(this.subtitles.data[this.subtitles.index].text);
-                    // console.log(this.video.videoElement.currentTime);
                 }
 
             }
 
             function timerForSubtitles(delay) {
                 setTimeout(() => {
-                    this.video.play();
                     this.subtitles.flag = false;
+                    if (this.video.videoElement.paused) {
+                        return false;
+                    }
+                    this.video.play();
                     this.subtitles.index++;
                 }, 3000);
             }
@@ -246,23 +244,23 @@ export default class Player {
             function drawSubtitlesPicture(text) {
                 context.fillStyle = '#000000';
                 context.fillRect(0, 0, theCanvas.width, theCanvas.height);
-                context.fillStyle = 'white';
-                context.font = '30px Oranienbaum';
+                context.fillStyle = '#D8D8D8';
+                context.font = `${theCanvas.width/100*3}px Oranienbaum`;
                 context.textBaseline = 'middle';
-                context.textAlign = "center";
+                context.textAlign = 'center';
                 context.fillText(text, theCanvas.width / 2, theCanvas.height / 2);
             }
         }
     }
 
     play() {
-      this.playButton.classList.add('player__button_hidden');
+        this.playButton.classList.add('player__button_hidden');
         this.pauseButton.classList.remove('player__button_hidden');
         this.video.play();
         this.song.play();
     }
     pause() {
-      this.pauseButton.classList.add('player__button_hidden');
+        this.pauseButton.classList.add('player__button_hidden');
         this.playButton.classList.remove('player__button_hidden');
         this.video.pause();
         this.song.pause();

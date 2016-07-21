@@ -8,8 +8,7 @@ export default class App {
             'pageForm': document.querySelector('.page_content_form'),
             'pagePreloader': document.querySelector('.page_content_preloader'),
             'pagePlayer': document.querySelector('.page_content_player')
-        }
-
+        };
 
         this.links = {
             video: '',

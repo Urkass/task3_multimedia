@@ -1,17 +1,16 @@
 import parser from 'subtitles-parser';
-// import moment from 'moment';
+
 
 export default class Subtitles {
     constructor(link) {
         this.link = link;
-        // let data;
         this.data = getFile();
         this.parseData();
         this.index = 0; // индекс текущих субтитров
         this.flag = false; // в видео еще не было субтитров
 
         function getFile() {
-            var xhr = new XMLHttpRequest();
+            let xhr = new XMLHttpRequest();
             xhr.open('GET', link, false);
             xhr.send();
             if (xhr.status === 200) {
