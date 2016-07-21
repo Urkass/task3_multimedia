@@ -1,9 +1,12 @@
 .panel__input {
     display: block;
-    margin: 10px;
-    width: 100%;
-    font-family: sans-serif;
+    box-sizing: border-box;
+    width: 353px;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
     font-size: 18px;
+    color: #969696;
+    font-weight: 500;
     appearance: none;
     box-shadow: none;
     border-radius: none;
@@ -11,9 +14,9 @@
     border: solid 1px #dcdcdc;
     border-bottom: solid 2px #c9c9c9;
     transition: border 0.3s;
+    box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
     &:focus {
         outline: none;
         border-bottom: solid 2px #969696;
     }
-
 }

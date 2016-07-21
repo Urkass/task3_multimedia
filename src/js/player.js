@@ -3,29 +3,31 @@ import Video from './video';
 import Subtitles from './subtitles';
 
 export default class Player {
-    constructor(links, pagePlayer) {
+    constructor(links, pages) {
 
-        // this.links = links;
-        this.pagePlayer = pagePlayer;
-        this.player = pagePlayer.querySelector('.player');
-        this.playButton = this.player.querySelector('.player__play');
-        this.stopButton = this.player.querySelector('.player__stop');
+        this.pagePlayer = pages.pagePlayer;
+        this.pagePreloader = pages.pagePreloader;
+        this.player = this.pagePlayer.querySelector('.player');
+        this.playButton = this.player.querySelector('.player__button_function_play');
+        this.pauseButton = this.player.querySelector('.player__button_function_pause');
         this.video = new Video(links.video, this.pagePlayer);
         this.song = new Song(links.audio);
         this.subtitles = new Subtitles(links.subtitles);
         this.previousTime = 0;
-        // console.log(`${this.video.videoElement.videoWidth}:${this.video.videoElement.videoHeight}`);
+
         this.video.videoElement.addEventListener('canplaythrough', () => {
-            initCanvas.call(this, this.video.videoElement.videoWidth, this.video.videoElement.videoHeight);
+            this.pagePlayer.classList.remove('page_hidden');
+            this.pagePreloader.classList.add('page_hidden');
+            init.call(this, this.video.videoElement.videoWidth, this.video.videoElement.videoHeight);
         });
         this.playButton.addEventListener('click', () => {
             this.play();
         });
-        this.stopButton.addEventListener('click', () => {
+        this.pauseButton.addEventListener('click', () => {
             this.pause();
         });
 
-        function initCanvas(videoWidth, videoHeight) {
+        function init(videoWidth, videoHeight) {
             let theCanvas = document.getElementById('canvas');
             let context = theCanvas.getContext('2d');
             let webglCanvas = document.getElementById('webgl-canvas');
@@ -137,7 +139,7 @@ export default class Player {
                     // Черно-белый эффект
                     // '   gl_FragColor = vec4(grayscale(texture2D(u_texture, v_texcoord).rgb), 1.0);' +
                     // Зернистость
-                    // '   gl_FragColor.xyz *= (1.0+(rand(uv+t*.01)-.2)*.15);	' +
+                    '   gl_FragColor.xyz *= (1.0+(rand(uv+t*.01)-.2)*.15);	' +
                     '}';
 
                 var fragmentShader = webglContext.createShader(webglContext.FRAGMENT_SHADER);
@@ -192,25 +194,20 @@ export default class Player {
             }
 
             function drawScreen(t) {
-                // if (this.video.videoElement.paused || this.video.videoElement.ended) {
-                //     return false;
-                // }
-                // console.log('t: '+t);
-                // console.log('this.previousTime: '+this.previousTime);
-                if (t === undefined) t = 0;
-                let delta = t - this.previousTime;
-                // console.log('delta: '+delta);
-                this.previousTime = t;
+
+
                 context.drawImage(this.video.videoElement, 0, 0, theCanvas.width, theCanvas.height);
                 checkForSubtitles.call(this);
-                // addGrayScale();
-                // addScratches.call(this);
-                postprocessWebGL(delta);
+                // if (!(this.video.videoElement.paused || this.video.videoElement.ended)) {
+                    if (t === undefined) t = 0;
+                    let delta = t - this.previousTime;
+                    this.previousTime = t;
+                    postprocessWebGL(delta);
+                // }
                 requestAnimationFrame(drawScreen.bind(this));
             }
 
             function postprocessWebGL(delta) {
-                // console.log('gltime:'+GL_TIME);
                 GL_TIME += delta;
                 webglContext.uniform1f(GL_TIME_UNIFORM, GL_TIME / 1000);
 
@@ -255,35 +252,18 @@ export default class Player {
                 context.textAlign = "center";
                 context.fillText(text, theCanvas.width / 2, theCanvas.height / 2);
             }
-
-            function addGrayScale() {
-                // First, draw it into the backing canvas
-                // Grab the pixel data from the backing canvas
-                let idata = context.getImageData(0, 0, theCanvas.width, theCanvas.height);
-                let data = idata.data;
-                // Loop through the pixels, turning them grayscale
-                for (let i = 0; i < data.length; i += 4) {
-                    let r = data[i];
-                    let g = data[i + 1];
-                    let b = data[i + 2];
-                    let brightness = (3 * r + 4 * g + b) >>> 3;
-                    data[i] = brightness;
-                    data[i + 1] = brightness;
-                    data[i + 2] = brightness;
-                }
-                idata.data.set(data);
-                // Draw the pixels onto the visible canvas
-                context.putImageData(idata, 0, 0);
-            }
-
         }
     }
 
     play() {
+      this.playButton.classList.add('player__button_hidden');
+        this.pauseButton.classList.remove('player__button_hidden');
         this.video.play();
         this.song.play();
     }
     pause() {
+      this.pauseButton.classList.add('player__button_hidden');
+        this.playButton.classList.remove('player__button_hidden');
         this.video.pause();
         this.song.pause();
     }

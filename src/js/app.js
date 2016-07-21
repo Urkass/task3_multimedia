@@ -4,8 +4,12 @@ export default class App {
     constructor() {
         const crossorigin = 'http://cors.io/?u=';
         this.form = document.querySelector('.panel__form');
-        this.pageForm = document.querySelector('.page_content_form');
-        this.pagePlayer = document.querySelector('.page_content_player');
+        this.pages = {
+            'pageForm': document.querySelector('.page_content_form'),
+            'pagePreloader': document.querySelector('.page_content_preloader'),
+            'pagePlayer': document.querySelector('.page_content_player')
+        }
+
 
         this.links = {
             video: '',
@@ -18,14 +22,13 @@ export default class App {
         function onFormSubmit(e) {
             e.preventDefault();
 
-            this.links.video = crossorigin+this.form.querySelector('[name="video"]').value;
-            this.links.subtitles = crossorigin+this.form.querySelector('[name="subtitles"]').value;
-            this.links.audio = crossorigin+this.form.querySelector('[name="audio"]').value;
+            this.links.video = crossorigin + this.form.querySelector('[name="video"]').value;
+            this.links.subtitles = crossorigin + this.form.querySelector('[name="subtitles"]').value;
+            this.links.audio = crossorigin + this.form.querySelector('[name="audio"]').value;
 
-
-            this.pagePlayer.classList.remove('page_hidden');
-            this.pageForm.classList.add('page_hidden');
-            this.player = new Player(this.links, this.pagePlayer);
+            this.pages.pageForm.classList.add('page_hidden');
+            this.pages.pagePreloader.classList.remove('page_hidden');
+            this.pages.player = new Player(this.links, this.pages);
         }
     }
 }

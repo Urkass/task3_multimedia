@@ -7,21 +7,19 @@ export default class Song {
         this.source = this.context.createMediaElementSource(this.audio);
         // gainNode = context.createGain();
         //filterNode = context.createBiquadFilter();
-
-
-        const distortion = this.context.createWaveShaper();
-        const biquadFilter = this.context.createBiquadFilter();
-        biquadFilter.type = 'lowpass';
-        biquadFilter.frequency.value = 1000;
-        biquadFilter.gain.value = 20;
-        this.source.connect(distortion);
-        distortion.connect(biquadFilter);
-        // this.generateWHiteNoize();
-        biquadFilter.connect(this.context.destination);
+this.addDirtyEffects();
 
     }
     addDirtyEffects() {
-
+      const distortion = this.context.createWaveShaper();
+      const biquadFilter = this.context.createBiquadFilter();
+      biquadFilter.type = 'lowpass';
+      biquadFilter.frequency.value = 1000;
+      biquadFilter.gain.value = 20;
+      this.source.connect(distortion);
+      distortion.connect(biquadFilter);
+      // this.generateWHiteNoize();
+      biquadFilter.connect(this.context.destination);
     }
     generateWHiteNoize() {
         var bufferSize = 4096;

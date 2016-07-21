@@ -1,0 +1,9 @@
+.logo__img {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #969696;
+    padding: 0;
+    margin: 0;
+}
