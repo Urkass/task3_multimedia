@@ -1,6 +1,6 @@
 # Задание для ШРИ 2016 по Multimedia
 При разработке использовал cors запросы, но на gh-pages не обойти https, поэтому файлы загрузил локально.
-[Ссылка](https://urkass.github.io/task2_multimedia/)
+[Ссылка](https://urkass.github.io/task3_multimedia/)
 # Комментарии
 Реализованы все основные и дополнительные техники из [задания](https://github.com/shri-msk-2016/dz-multimedia).
 # Аудио
